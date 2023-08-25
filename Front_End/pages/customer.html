@@ -9,6 +9,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="../assets/css/bootstrap.css">
 </head>
 
 <style>
@@ -99,6 +100,9 @@
             <button type="button" class="btn btn-warning" id="updateBtn">
                 <i class="fas fa-edit"></i> Update
             </button>
+            <button type="button" class="btn-outline-success"  id="getAllBtn">
+                <i class="fas fa-edit"></i> GetAll
+            </button>
 
         </form>
 
@@ -140,10 +144,37 @@
     </div>
 
 </section>
-<!--<script src="../assets/js/jquery-3.6.1.min.js"></script>-->
-<!--<script src="../assets/js/bootstrap.min.js"></script>-->
-<!--<script>-->
-<!--    const BASE_URL ="http://localhost:8084/Back_End_war_exploded/";-->
-<!--</script>-->
+<script src="../assets/js/jquery-3.6.1.min.js"></script>
+<script src="../assets/js/bootstrap.min.js"></script>
+<script>
+    const BASE_URL ="http://localhost:8084/Back_End_war_exploded/pages/";
+    
+    $("#getAllBtn").click(function () {
+        getAllCustomers();
+    })
+    function getAllCustomers() {
+        $("#customerTableBody").empty();
+        $.ajax({
+            url: BASE_URL+"customer",
+            dataType:"json",
+            success: function (response) {
+                let customers = response.data;
+                for (let i in customers){
+                    let customer = customers[i];
+                    let id = customer.id;
+                    let name = customer.name;
+                    let address = customer.address;
+                    let salary = customer.salary;
+
+                    let row = `<tr><td>${id}</td><td>${name}</td><td>${address}</td><td>${salary}</td></tr>`;
+                    $("#customerTableBody").append(row);
+                }
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    }
+</script>
 </body>
 </html>

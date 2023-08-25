@@ -1,6 +1,7 @@
 package lk.ijse.pos.servlet;
 
 import com.mysql.jdbc.Driver;
+import lk.ijse.pos.servlet.util.ResponseUtil;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -18,11 +19,14 @@ import java.sql.*;
  * @since : v0.01.0
  **/
 
-@WebServlet(urlPatterns = "/pages/spa")
+@WebServlet(urlPatterns = "/pages/customer")
 public class CustomerServletAPI extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
+            resp.addHeader("Access-Control-Allow-Origin","*");
+            resp.addHeader("Content-Type","application/json");
+
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
             PreparedStatement pstm = connection.prepareStatement("select * from Customer");
@@ -33,15 +37,22 @@ public class CustomerServletAPI extends HttpServlet {
                 String id = rst.getString(1);
                 String name = rst.getString(2);
                 String address = rst.getString(3);
+                String salary = rst.getString(4);
 
                 JsonObjectBuilder customerObject = Json.createObjectBuilder();
                 customerObject.add("id", id);
                 customerObject.add("name", name);
                 customerObject.add("address", address);
+                customerObject.add("salary",salary);
                 allCustomers.add(customerObject.build());
             }
-        } catch (ClassNotFoundException | SQLException e) {
-
+            resp.getWriter().print(ResponseUtil.genJson("Success","Loaded",allCustomers.build()));
+        } catch (ClassNotFoundException e ) {
+                resp.setStatus(500);
+                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        } catch (SQLException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
     }
 }
