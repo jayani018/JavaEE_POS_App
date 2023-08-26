@@ -55,4 +55,39 @@ public class CustomerServletAPI extends HttpServlet {
             resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
     }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        String cusId = req.getParameter("cusId");
+        String cusName = req.getParameter("cusName");
+        String cusAddress = req.getParameter("cusAddress");
+        double cusSalary = Double.parseDouble(req.getParameter("cusSalary"));
+
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Content-Type", "application/json");
+
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
+                PreparedStatement pstm = connection.prepareStatement("insert into Customer values (?,?,?,?)");
+                pstm.setObject(1,cusId);
+                pstm.setObject(2,cusName);
+                pstm.setObject(3,cusAddress);
+                pstm.setObject(4,cusSalary);
+
+                System.out.println("cusId,cusName,cusAddress,cusSalary");
+                if (pstm.executeUpdate() > 0){
+                    resp.getWriter().print(ResponseUtil.genJson("Success","Successfully Added.!"));
+                }
+            } catch (ClassNotFoundException e) {
+                resp.setStatus(500);
+                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+
+            }catch (SQLException e){
+                resp.setStatus(500);
+                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        }
+
+
+    }
 }

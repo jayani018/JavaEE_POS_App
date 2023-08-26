@@ -70,7 +70,7 @@
 <section id="customerSection" style="margin-top: 80px;">
     <div class="container mt-4">
         <h3> <i class="fas fa-users"></i> Customer Management</h3>
-        <form class="mt-4 ">
+        <form  id="customerForm" class="mt-4 ">
             <div class="form-group">
                 <label for="customerId"><i class="fas fa-id-card"></i> Customer ID:</label>
                 <input type="text" class="form-control" id="customerId" required>
@@ -88,7 +88,7 @@
                 <input type="text" class="form-control" id="customerSalary" required>
             </div>
 
-            <button type="submit" class="btn btn-primary" id="saveBtn1">
+            <button type="button" class="btn btn-primary" id="saveBtn1">
                 <i class="fas fa-save"></i> Save
             </button>
             <button type="button" class="btn btn-secondary" id="searchBtn">
@@ -175,6 +175,22 @@
             }
         });
     }
+
+    $("#saveBtn1").click(function () {
+        let formData = $("#customerForm").serialize();
+        $.ajax({
+            url: BASE_URL+"customer",
+            method : "POST",
+            data : formData,
+            success : function (res) {
+                alert(res.message);
+                getAllCustomers();
+            },
+            error : function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
 </script>
 </body>
 </html>
