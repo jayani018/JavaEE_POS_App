@@ -3,9 +3,7 @@ package lk.ijse.pos.servlet;
 import com.mysql.jdbc.Driver;
 import lk.ijse.pos.servlet.util.ResponseUtil;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -70,12 +68,14 @@ public class CustomerServletAPI extends HttpServlet {
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
                 PreparedStatement pstm = connection.prepareStatement("insert into Customer values (?,?,?,?)");
+
                 pstm.setObject(1,cusId);
                 pstm.setObject(2,cusName);
                 pstm.setObject(3,cusAddress);
                 pstm.setObject(4,cusSalary);
 
                 System.out.println("cusId,cusName,cusAddress,cusSalary");
+
                 if (pstm.executeUpdate() > 0){
                     resp.getWriter().print(ResponseUtil.genJson("Success","Successfully Added.!"));
                 }
@@ -88,6 +88,38 @@ public class CustomerServletAPI extends HttpServlet {
                 resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
 
+    }
 
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        JsonReader reader = Json.createReader(req.getReader());
+        JsonObject jsonObject = reader.readObject();
+        String cusId = jsonObject.getString("cusId");
+        String cusName = jsonObject.getString("cusName");
+        String cusAddress = jsonObject.getString("cusAddress");
+        String cusSalary = jsonObject.getString("cusSalary");
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
+            PreparedStatement pstm = connection.prepareStatement("update Customer set name=?,address=?,salary=? where id=?");
+            pstm.setObject(4,cusId);
+            pstm.setObject(1,cusName);
+            pstm.setObject(2,cusAddress);
+            pstm.setObject(3,cusSalary);
+
+            if (pstm.executeUpdate()>0){
+                resp.getWriter().print(ResponseUtil.genJson("Success","Customer Updated..!"));
+            }else {
+                resp.getWriter().print(ResponseUtil.genJson("Failed","Customer Updated Failed..!"));
+            }
+        } catch (ClassNotFoundException e) {
+                resp.setStatus(500);
+                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        } catch (SQLException e) {
+                resp.setStatus(500);
+                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        }
     }
 }

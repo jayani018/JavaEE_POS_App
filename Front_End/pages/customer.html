@@ -191,6 +191,31 @@
             }
         });
     });
+
+
+    $("#updateBtn").click(function () {
+        let id = $("#customerId").val();
+        let name = $("#customerName").val();
+        let address = $("#customerAddress").val();
+        let salary = $("#customerSalary").val();
+
+        let a={
+            "cusId" : id,
+            "cusName" : name,
+            "cusAddress" : address,
+            "cusSalary" : salary
+        }
+
+        $.ajax({
+            url : "customer",
+            method: "PUT",
+            contentType : "application/json",
+            data: JSON.stringify(a),
+            success :function (resp) {
+                getAllCustomers();
+            }
+        });
+    });
 </script>
 </body>
 </html>
