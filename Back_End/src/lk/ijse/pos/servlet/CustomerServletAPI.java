@@ -93,6 +93,9 @@ public class CustomerServletAPI extends HttpServlet {
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Content-Type", "application/json");
+
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
         String cusId = jsonObject.getString("cusId");
@@ -120,6 +123,34 @@ public class CustomerServletAPI extends HttpServlet {
         } catch (SQLException e) {
                 resp.setStatus(500);
                 resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        }
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Content-Type", "application/json");
+
+        String cusId = req.getParameter("cusId");
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
+            PreparedStatement pstm = connection.prepareStatement("delete from Customer where id=?");
+            pstm.setObject(1,cusId);
+
+            if (pstm.executeUpdate()>0){
+                resp.getWriter().print(ResponseUtil.genJson("Success", "Customer Deleted..!"));
+            }else {
+                resp.getWriter().print(ResponseUtil.genJson("Failed", "Customer Delete Failed..!"));
+            }
+        } catch (ClassNotFoundException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        } catch (SQLException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
     }
 }

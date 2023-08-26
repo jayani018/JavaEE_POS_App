@@ -199,7 +199,7 @@
         let address = $("#customerAddress").val();
         let salary = $("#customerSalary").val();
 
-        let a={
+        let object={
             "cusId" : id,
             "cusName" : name,
             "cusAddress" : address,
@@ -207,12 +207,31 @@
         }
 
         $.ajax({
-            url : "customer",
+            url : BASE_URL +"customer",
             method: "PUT",
             contentType : "application/json",
-            data: JSON.stringify(a),
+            data: JSON.stringify(object),
             success :function (resp) {
+                alert(resp.message);
                 getAllCustomers();
+            },
+            error : function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+    $("#deleteBtn").click(function () {
+        let id = $("#customerId").val();
+        $.ajax({
+            url : BASE_URL+"customer?cusId=" +id,
+            method : "DELETE",
+            success : function (resp) {
+                alert(resp.message);
+                getAllCustomers();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
             }
         });
     });
