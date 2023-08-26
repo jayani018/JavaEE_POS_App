@@ -27,7 +27,7 @@ public class CustomerServletAPI extends HttpServlet {
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("select * from Customer");
+            PreparedStatement pstm = connection.prepareStatement("select * from customer");
             ResultSet rst = pstm.executeQuery();
 
             JsonArrayBuilder allCustomers = Json.createArrayBuilder();
@@ -37,13 +37,20 @@ public class CustomerServletAPI extends HttpServlet {
                 String address = rst.getString(3);
                 String salary = rst.getString(4);
 
+
+
                 JsonObjectBuilder customerObject = Json.createObjectBuilder();
-                customerObject.add("id", id);
-                customerObject.add("name", name);
-                customerObject.add("address", address);
-                customerObject.add("salary",salary);
+                customerObject.add("cusId", id);
+                customerObject.add("cusName", name);
+                customerObject.add("cusAddress", address);
+                customerObject.add("cusSalary",salary);
                 allCustomers.add(customerObject.build());
+
+                System.out.println(customerObject.add("cusId", id));
             }
+
+
+
             resp.getWriter().print(ResponseUtil.genJson("Success","Loaded",allCustomers.build()));
         } catch (ClassNotFoundException e ) {
                 resp.setStatus(500);
@@ -67,7 +74,7 @@ public class CustomerServletAPI extends HttpServlet {
             try {
                 Class.forName("com.mysql.jdbc.Driver");
                 Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-                PreparedStatement pstm = connection.prepareStatement("insert into Customer values (?,?,?,?)");
+                PreparedStatement pstm = connection.prepareStatement("insert into customer values (?,?,?,?)");
 
                 pstm.setObject(1,cusId);
                 pstm.setObject(2,cusName);
@@ -106,7 +113,7 @@ public class CustomerServletAPI extends HttpServlet {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("update Customer set name=?,address=?,salary=? where id=?");
+            PreparedStatement pstm = connection.prepareStatement("update customer set name=?,address=?,salary=? where id=?");
             pstm.setObject(4,cusId);
             pstm.setObject(1,cusName);
             pstm.setObject(2,cusAddress);
@@ -137,7 +144,7 @@ public class CustomerServletAPI extends HttpServlet {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("delete from Customer where id=?");
+            PreparedStatement pstm = connection.prepareStatement("delete from customer where id=?");
             pstm.setObject(1,cusId);
 
             if (pstm.executeUpdate()>0){
@@ -152,5 +159,12 @@ public class CustomerServletAPI extends HttpServlet {
             resp.setStatus(500);
             resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
+    }
+
+    @Override
+    protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.addHeader("Access-Control-Allow-Origin", "*");
+        resp.addHeader("Access-Control-Allow-Methods", "PUT, DELETE");
+        resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }

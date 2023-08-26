@@ -161,10 +161,10 @@
                 let customers = response.data;
                 for (let i in customers){
                     let customer = customers[i];
-                    let id = customer.id;
-                    let name = customer.name;
-                    let address = customer.address;
-                    let salary = customer.salary;
+                    let id = customer.cusId;
+                    let name = customer.cusName;
+                    let address = customer.cusAddress;
+                    let salary = customer.cusSalary;
 
                     let row = `<tr><td>${id}</td><td>${name}</td><td>${address}</td><td>${salary}</td></tr>`;
                     $("#customerTableBody").append(row);
@@ -184,6 +184,7 @@
             data : formData,
             success : function (res) {
                 alert(res.message);
+                console.log("save");
                 getAllCustomers();
             },
             error : function (error) {
