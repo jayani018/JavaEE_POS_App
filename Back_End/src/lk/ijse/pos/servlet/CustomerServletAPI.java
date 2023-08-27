@@ -23,11 +23,21 @@ public class CustomerServletAPI extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             resp.addHeader("Access-Control-Allow-Origin","*");
+            resp.addHeader("Access-Control-Allow-Methods", "GET,PUT, DELETE");
             resp.addHeader("Content-Type","application/json");
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("select * from customer");
+            String cusId = req.getParameter("cusId");
+            PreparedStatement pstm;
+           if  (cusId==null){
+
+                pstm = connection.prepareStatement("select * from customer");
+           }else{
+
+               pstm = connection.prepareStatement("select * from customer where cusId=?");
+               pstm.setString(1, cusId);
+           }
             ResultSet rst = pstm.executeQuery();
 
             JsonArrayBuilder allCustomers = Json.createArrayBuilder();
@@ -172,7 +182,7 @@ public class CustomerServletAPI extends HttpServlet {
     @Override
     protected void doOptions(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.addHeader("Access-Control-Allow-Origin", "*");
-        resp.addHeader("Access-Control-Allow-Methods", "PUT, DELETE");
+        resp.addHeader("Access-Control-Allow-Methods", "GET,PUT, DELETE");
         resp.addHeader("Access-Control-Allow-Headers", "content-type");
     }
 }

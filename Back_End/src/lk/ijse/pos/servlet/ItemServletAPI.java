@@ -23,11 +23,21 @@ public class ItemServletAPI extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
             resp.addHeader("Access-Control-Allow-Origin","*");
+            resp.addHeader("Access-Control-Allow-Methods", "GET,PUT, DELETE");
             resp.addHeader("Content-Type","application/json");
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("select * from item");
+            String itemCode = req.getParameter("itemCode");
+            PreparedStatement pstm;
+            if  (itemCode==null){
+
+                pstm = connection.prepareStatement("select * from item");
+            }else{
+
+                pstm = connection.prepareStatement("select * from item where code=?");
+                pstm.setString(1, itemCode);
+            }
             ResultSet rst = pstm.executeQuery();
 
             JsonArrayBuilder allItems = Json.createArrayBuilder();

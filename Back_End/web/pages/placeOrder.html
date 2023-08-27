@@ -118,8 +118,11 @@
             <label for="qtyOnHand"><i class="bi bi-archive"></i> Qty On Hand</label>
             <input type="text" class="form-control" id="qtyOnHand">
           </div>
-          <button type="button" class="btn btn-primary"><i class="bi bi-cart-plus"></i> Add to
+          <button type="button" class="btn btn-primary"><i class="bi bi-cart-plus" id="addToCart"></i> Add to
             Cart</button>
+          <button type="button" class="btn-outline-success"  id="getAllBtn">
+            <i class="fas fa-edit"></i> GetAll
+          </button>
           <button type="button" class="btn btn-secondary"><i class="bi bi-x-circle"></i> Clear</button>
         </form>
       </div>
@@ -156,21 +159,23 @@
         <table class="table mt-3">
           <thead>
           <tr>
+            <th><i class="bi bi-tag"></i> Order ID</th>
+            <th><i class="bi bi-tag"></i> Order Date</th>
+            <th><i class="bi bi-tag"></i> Customer ID</th>
             <th><i class="bi bi-tag"></i> Item Code</th>
-            <th><i class="bi bi-card-text"></i> Name</th>
-            <th><i class="bi bi-cash"></i> Unit Price</th>
-            <th><i class="bi bi-list-ol"></i> Qty on Hand</th>
+            <th><i class="bi bi-list-ol"></i> No Of Items</th>
             <th><i class="bi bi-cash"></i> Total</th>
             <th><i class="bi bi-trash"></i> Delete</th>
           </tr>
           </thead>
-          <tbody>
+          <tbody id="orderTBody">
           <tr>
             <td>001</td>
-            <td>Item 1</td>
-            <td>$10</td>
-            <td>5</td>
-            <td>$50</td>
+            <td>08/05/2023</td>
+            <td>Coo-oo1</td>
+            <td>A001</td>
+            <td>4</td>
+            <td>80</td>
             <td><i class="bi bi-trash del"></i></td>
           </tr>
           </tbody>
@@ -180,5 +185,88 @@
   </div>
 
 </section>
+<script src="../assets/js/jquery-3.6.1.min.js"></script>
+<script src="../assets/js/bootstrap.min.js"></script>
+
+<script>
+  const BASE_URL ="http://localhost:8084/Back_End_war_exploded/pages/";
+
+  // getAll();
+  // $("#getAllBtn").click(function () {
+  //  getAll();
+  // })
+  // function getAll() {
+  //   $("#orderTBody").empty();
+  //   $.ajax({
+  //     url: BASE_URL+"order",
+  //     dataType:"json",
+  //     success: function (response) {
+  //       let orders = response.data;
+  //       for (let i in orders){
+  //         let order = orders[i];
+  //         let orderId = order.orderId;
+  //         let orderDate = order.orderDate;
+  //         let customerId = order.customerId;
+  //         let itemCode = order.itemCode;
+  //         let numItems = order.numItems;
+  //         let total = order.total;
+  //
+  //         let row = `<tr><td>${orderId}</td><td>${orderDate}</td><td>${customerId}</td><td>${itemCode}</td><td>${numItems}</td><td>${total}</td></tr>`;
+  //         $("#orderTBody").append(row);
+  //       }
+  //     },
+  //     error: function (error) {
+  //       alert(error.responseJSON.message);
+  //     }
+  //   });
+  // }
+  $("#addToCart").click(function () {
+    let orderId = $("#orderId").val();
+    let orderDate = $("#orderDate").val();
+    let customerId1 = $("#customerId1").val();
+    let itemCode = $("#itemCode").val();
+    let numItems = $("#numItems").val();
+    let total = $("#total").val();
+    let formData = {
+      orderId: orderId,
+      orderDate: orderDate,
+      customerId1: customerId1,
+      itemCode: itemCode,
+      numItems: numItems,
+      total:total
+    };
+    console.log("formData"+formData);
+
+    let jsonData = JSON.stringify(formData);
+    // let formData = $("#customerForm").serialize();
+    console.log("formData"+formData);
+    $.ajax({
+      url: BASE_URL+"order",
+      method : "POST",
+      data : jsonData,
+      success : function (res) {
+        let orders = response.data;
+        for (let i in orders){
+          let order = orders[i];
+          let orderId = order.orderId;
+          let orderDate = order.orderDate;
+          let customerId = order.customerId;
+          let itemCode = order.itemCode;
+          let numItems = order.numItems;
+          let total = order.total;
+
+          let row = `<tr><td>${orderId}</td><td>${orderDate}</td><td>${customerId}</td><td>${itemCode}</td><td>${numItems}</td><td>${total}</td></tr>`;
+          $("#orderTBody").append(row);
+        }
+        alert(res.message);
+        console.log("save");
+         getAll();
+      },
+      error : function (error) {
+        alert(error.responseJSON.message);
+      }
+    });
+  });
+</script>
 </body>
 </html>
