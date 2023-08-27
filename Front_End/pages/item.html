@@ -87,7 +87,7 @@
                 <label for="itemQuantity"><i class="fas fa-sort-numeric-up"></i> Item Quantity:</label>
                 <input type="text" class="form-control" id="itemQuantity" required>
             </div>
-            <button type="submit" class="btn btn-primary" id="saveBtn">
+            <button type="button" class="btn btn-primary" id="saveBtn">
                 <i class="fas fa-save"></i> Save
             </button>
             <button type="button" class="btn btn-secondary" id="searchBtn">
@@ -98,6 +98,9 @@
             </button>
             <button type="button" class="btn btn-warning" id="updateBtn">
                 <i class="fas fa-edit"></i> Update
+            </button>
+            <button type="button" class="btn-outline-success"  id="getAllBtn">
+                <i class="fas fa-edit"></i> GetAll
             </button>
         </form>
 
@@ -112,7 +115,7 @@
                     <th><i class="fas fa-sort-numeric-up"></i> Item Quantity</th>
                 </tr>
                 </thead>
-                <tbody>
+                <tbody id="itemTableBody">
                 <tr>
                     <td>ABC123</td>
                     <td>Sample Item</td>
@@ -133,5 +136,120 @@
     </div>
 
 </section>
+<script src="../assets/js/jquery-3.6.1.min.js"></script>
+<script src="../assets/js/bootstrap.min.js"></script>
+
+<script>
+
+    const BASE_URL ="http://localhost:8084/Back_End_war_exploded/pages/";
+    getAllItems();
+    $("#getAllBtn").click(function () {
+        getAllItems();
+    })
+    function getAllItems() {
+        $("#itemTableBody").empty();
+        $.ajax({
+            url: BASE_URL+"item",
+            dataType:"json",
+            success: function (response) {
+                let items = response.data;
+                console.table(items)
+
+                for (let i in items){
+                    let item = items[i];
+                    let code = item.code;
+                    let name = item.name;
+                    let unitPrice = item.unitPrice;
+                    let qtyOnHand =item.qtyOnHand;
+
+                    let row = `<tr><td>${code}</td><td>${name}</td><td>${unitPrice}</td><td>${qtyOnHand}</td></tr>`;
+                    $("#itemTableBody").append(row);
+                }
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    }
+    $("#saveBtn").click(function () {
+        let code = $("#itemCode").val();
+        let name = $("#itemName").val();
+        let unitPrice = $("#itemUnitPrice").val();
+        let quantity = $("#itemQuantity").val();
+        let formData = {
+            code: code,
+            name: name,
+            unitPrice: unitPrice,
+            quantity: quantity
+        };
+        console.log("formData"+formData);
+
+        let jsonData = JSON.stringify(formData);
+        // let formData = $("#customerForm").serialize();
+        console.log("formData"+formData);
+        $.ajax({
+            url: BASE_URL+"item",
+            method : "POST",
+            data : jsonData,
+            success : function (res) {
+                alert(res.message);
+                console.log("save");
+                getAllItems();
+            },
+            error : function (error) {
+                console.log(error)
+               alert(error);
+                // alert("error")
+            }
+        });
+
+        console.log("Item Save function")
+    });
+    $("#updateBtn").click(function () {
+        let code = $("#itemCode").val();
+        let name = $("#itemName").val();
+        let unitPrice = $("#itemUnitPrice").val();
+        let qtyOnHand = $("#itemQuantity").val();
+
+        let object={
+            "code" : code,
+            "name" : name,
+            "unitPrice" : unitPrice,
+            "qtyOnHand" : qtyOnHand
+        }
+
+        $.ajax({
+            url : BASE_URL +"item",
+            method: "PUT",
+            contentType : "application/json",
+            data: JSON.stringify(object),
+            success :function (resp) {
+                alert(resp.message);
+                getAllItems();
+            },
+            error : function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+    $("#deleteBtn").click(function () {
+        let code = $("#itemCode").val();
+        $.ajax({
+            url : BASE_URL+"item?code=" +code,
+            method : "DELETE",
+            success : function (resp) {
+                alert(resp.message);
+                getAllItems();
+            },
+            error: function (error) {
+                alert(error.responseJSON.message);
+            }
+        });
+    });
+
+
+</script>
+
 </body>
 </html>

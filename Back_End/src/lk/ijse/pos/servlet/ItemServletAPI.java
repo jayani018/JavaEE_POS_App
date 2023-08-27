@@ -1,6 +1,5 @@
 package lk.ijse.pos.servlet;
 
-import com.mysql.jdbc.Driver;
 import lk.ijse.pos.servlet.util.ResponseUtil;
 
 import javax.json.*;
@@ -13,12 +12,13 @@ import java.io.IOException;
 import java.sql.*;
 
 /**
- * @author : Jayani_Arunika  8/24/2023 - 2:27 PM
+ * @author : Jayani_Arunika  8/26/2023 - 8:55 PM
  * @since : v0.01.0
  **/
 
-@WebServlet(urlPatterns = "/pages/customer")
-public class CustomerServletAPI extends HttpServlet {
+@WebServlet(urlPatterns = "/pages/item")
+public class ItemServletAPI extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
@@ -27,32 +27,28 @@ public class CustomerServletAPI extends HttpServlet {
 
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("select * from customer");
+            PreparedStatement pstm = connection.prepareStatement("select * from item");
             ResultSet rst = pstm.executeQuery();
 
-            JsonArrayBuilder allCustomers = Json.createArrayBuilder();
+            JsonArrayBuilder allItems = Json.createArrayBuilder();
             while (rst.next()) {
-                String id = rst.getString(1);
+                String code = rst.getString(1);
                 String name = rst.getString(2);
-                String address = rst.getString(3);
-                String salary = rst.getString(4);
+                String unitPrice = rst.getString(3);
+                String qtyOnHand = rst.getString(4);
 
+                JsonObjectBuilder itemObject = Json.createObjectBuilder();
+                itemObject.add("code", code);
+                itemObject.add("name", name);
+                itemObject.add("unitPrice", unitPrice);
+                itemObject.add("qtyOnHand",qtyOnHand);
+                allItems.add(itemObject.build());
 
-
-                JsonObjectBuilder customerObject = Json.createObjectBuilder();
-                customerObject.add("cusId", id);
-                customerObject.add("cusName", name);
-                customerObject.add("cusAddress", address);
-                customerObject.add("cusSalary",salary);
-                allCustomers.add(customerObject.build());
-
-                System.out.println(customerObject.add("cusId", id));
             }
-
-            resp.getWriter().print(ResponseUtil.genJson("Success","Loaded",allCustomers.build()));
-        } catch (ClassNotFoundException e ) {
-                resp.setStatus(500);
-                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+            resp.getWriter().print(ResponseUtil.genJson("Success","Loaded",allItems.build()));
+        } catch (ClassNotFoundException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         } catch (SQLException e) {
             resp.setStatus(500);
             resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
@@ -66,66 +62,60 @@ public class CustomerServletAPI extends HttpServlet {
 
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
-        String cusId = jsonObject.getString("cusId");
-        String cusName = jsonObject.getString("cusName");
-        String cusAddress = jsonObject.getString("cusAddress");
-        double cusSalary = Double.parseDouble(jsonObject.getString("cusSalary"));
+        String code = jsonObject.getString("code");
+        String name = jsonObject.getString("name");
+        String unitPrice=jsonObject.getString("unitPrice");
+        String qtyOnHand=jsonObject.getString("quantity");
+
+//        double unitPrice = Double.parseDouble(jsonObject.getString("unitPrice"));
+//        int qtyOnHand = Integer.parseInt(jsonObject.getString("qtyOnHand"));
 
         System.out.println("json : "+jsonObject);
-//        String cusId = req.getParameter("cusId");
-//        String cusName = req.getParameter("cusName");
-//        String cusAddress = req.getParameter("cusAddress");
-//        double cusSalary = Double.parseDouble(req.getParameter("cusSalary"));
-//        String cusSalary = req.getParameter("cusSalary"); // Get the parameter as a string
-        System.out.println(cusId+cusName+cusAddress+cusSalary);
 
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
 
-            try {
-                Class.forName("com.mysql.jdbc.Driver");
-                Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-                PreparedStatement pstm = connection.prepareStatement("insert into customer values (?,?,?,?)");
+            PreparedStatement pstm = connection.prepareStatement("insert into item values(?,?,?,?)");
+            pstm.setObject(1, code);
+            pstm.setObject(2, name);
+            pstm.setObject(3, unitPrice);
+            pstm.setObject(4, qtyOnHand);
 
-                pstm.setObject(1,cusId);
-                pstm.setObject(2,cusName);
-                pstm.setObject(3,cusAddress);
-                pstm.setObject(4,cusSalary);
-                System.out.println("cusId,cusName,cusAddress,cusSalary");
+            if (pstm.executeUpdate() > 0) {
+                resp.getWriter().print(ResponseUtil.genJson("Success", "Successfully Added.!"));
+            }
+        } catch (ClassNotFoundException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error", e.getMessage()));
 
-                if (pstm.executeUpdate() > 0){
-                    resp.getWriter().print(ResponseUtil.genJson("Success","Successfully Added.!"));
-                }
-            } catch (ClassNotFoundException e) {
-                resp.setStatus(500);
-                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
-
-            }catch (SQLException e){
-                resp.setStatus(500);
-                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+        } catch (SQLException e) {
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error", e.getMessage()));
         }
 
     }
 
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.addHeader("Content-Type", "application/json");
 
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
-        String cusId = jsonObject.getString("cusId");
-        String cusName = jsonObject.getString("cusName");
-        String cusAddress = jsonObject.getString("cusAddress");
-        String cusSalary = jsonObject.getString("cusSalary");
-
+        String code = jsonObject.getString("code");
+        String name = jsonObject.getString("name");
+        String unitPrice = jsonObject.getString("unitPrice");
+        String qtyOnHand = jsonObject.getString("qtyOnHand");
+        System.out.println(jsonObject);
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("update customer set cusName=?,cusAddress=?,cusSalary=? where cusId=?");
-            pstm.setObject(4,cusId);
-            pstm.setObject(1,cusName);
-            pstm.setObject(2,cusAddress);
-            pstm.setObject(3,cusSalary);
+            PreparedStatement pstm = connection.prepareStatement("update item set name=?,unitPrice=?,qntOnHand=? where code=?");
+            pstm.setObject(4,code);
+            pstm.setObject(1,name);
+            pstm.setObject(2,unitPrice);
+            pstm.setObject(3,qtyOnHand);
 
             if (pstm.executeUpdate()>0){
                 resp.getWriter().print(ResponseUtil.genJson("Success","Customer Updated..!"));
@@ -133,27 +123,26 @@ public class CustomerServletAPI extends HttpServlet {
                 resp.getWriter().print(ResponseUtil.genJson("Failed","Customer Updated Failed..!"));
             }
         } catch (ClassNotFoundException e) {
-                resp.setStatus(500);
-                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         } catch (SQLException e) {
-                resp.setStatus(500);
-                resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
+            resp.setStatus(500);
+            resp.getWriter().print(ResponseUtil.genJson("Error",e.getMessage()));
         }
     }
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.addHeader("Content-Type", "application/json");
 
-        String cusId = req.getParameter("cusId");
+        String code = req.getParameter("code");
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
             Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/pos_system", "root", "1234");
-            PreparedStatement pstm = connection.prepareStatement("delete from customer where cusId=?");
-            pstm.setObject(1,cusId);
+            PreparedStatement pstm = connection.prepareStatement("delete from item where code=?");
+            pstm.setObject(1,code);
 
             if (pstm.executeUpdate()>0){
                 resp.getWriter().print(ResponseUtil.genJson("Success", "Customer Deleted..!"));
