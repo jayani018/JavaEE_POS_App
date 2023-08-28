@@ -145,7 +145,8 @@
                         <label for="balance"><i class="bi bi-currency-dollar"></i> Balance</label>
                         <input type="text" class="form-control" id="balance">
                     </div>
-                    <button type="button" class="btn btn-success"><i class="bi bi-check-circle"></i> Place
+                    <button type="button" class="btn btn-success" id="placeOrderBtn"><i class="bi bi-check-circle"></i>
+                        Place
                         Order
                     </button>
                     <button type="button" class="btn btn-danger"><i class="bi bi-x-circle"></i> Cancel</button>
@@ -219,7 +220,7 @@
     $("#cash").keyup(function (event) {
         // Check if the Enter key (key code 13) is pressed
         if (event.keyCode === 13) {
-          $("#balance").val(   $("#cash").val()-$("#total").val());
+            $("#balance").val($("#cash").val() - $("#total").val());
         }
     })
 
@@ -277,7 +278,40 @@
         $("#numItems").val(qtyOnHandCount);
     })
 
-
+    $('#placeOrderBtn').click(function () {
+        var tbody = $("#addToCartTBody");
+        var concatenatedValues = "";
+        tbody.find("tr").each(function (index) {
+            var firstColumnValue = $(this).find("td:first").text();
+            if (index !== 0) {
+                concatenatedValues += ", "; // Add a comma and space separator
+            }
+            concatenatedValues += firstColumnValue;
+        });
+        console.log(concatenatedValues)
+        var data = {
+            orderId: $("#orderId").val(),
+            orderDate: $("#orderDate").val(),
+            cusId: $("#customerId1").val(),
+            itemCode: concatenatedValues,
+            total: $("#total").val(),
+            noOfItems: $("#numItems").val()
+        };
+        console.log(data)
+        $.ajax({
+            type: "POST",
+            url: BASE_URL+"placeOrder",
+            contentType: "application/json",
+            data: JSON.stringify(data),
+            success: function (response) {
+                console.log("Data sent successfully");
+                alert(response)
+            },
+            error: function (xhr, status, error) {
+                console.error("Error sending data:", error);
+            }
+        });
+    })
 </script>
 </body>
 </html>

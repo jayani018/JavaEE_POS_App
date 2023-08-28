@@ -67,6 +67,7 @@ public class PurchaseOrderServletAPI extends HttpServlet {
         resp.addHeader("Access-Control-Allow-Origin", "*");
         resp.addHeader("Content-Type", "application/json");
 
+
         JsonReader reader = Json.createReader(req.getReader());
         JsonObject jsonObject = reader.readObject();
         String orderId = jsonObject.getString("orderId");
@@ -75,7 +76,7 @@ public class PurchaseOrderServletAPI extends HttpServlet {
         String itemCode = jsonObject.getString("itemCode");
         String total = jsonObject.getString("total");
         String noOfItems = jsonObject.getString("noOfItems");
-
+        System.out.println("JSON Object Place Order"+jsonObject);
 
         try {
             Class.forName("com.mysql.jdbc.Driver");
