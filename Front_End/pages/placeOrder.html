@@ -246,6 +246,7 @@
         }
     });
     $("#addToCartTBody").empty();
+    let rowCount;
     $("#addToCart").click(function () {
         let itemCode = $("#itemCode").val();
         let itemName = $("#itemName").val();
@@ -274,45 +275,98 @@
 
         });
         $("#total").val(totalSum);
-        var rowCount = tbody.find("tr").length;
+        rowCount = tbody.find("tr").length;
         console.log(rowCount)
         $("#numItems").val(qtyOnHandCount);
     })
 
     $('#placeOrderBtn').click(function () {
         var tbody = $("#addToCartTBody");
-        var concatenatedValues = "";
-        tbody.find("tr").each(function (index) {
-            var firstColumnValue = $(this).find("td:first").text();
-            if (index !== 0) {
-                concatenatedValues += ", "; // Add a comma and space separator
-            }
-            concatenatedValues += firstColumnValue;
+        var items = []; // Create an array to store item objects
+
+        tbody.find("tr").each(function () {
+            var row = $(this);
+            var itemCode = row.find("td:eq(0)").text();
+            var itemName = row.find("td:eq(1)").text();
+            var unitPrice = parseFloat(row.find("td:eq(2)").text().replace("$", ""));
+            var qtyOnHand = parseInt(row.find("td:eq(3)").text());
+            var total = parseFloat(row.find("td:eq(4)").text().replace("$", ""));
+
+            // Push the item object into the items array
+            items.push({
+                itemCode: itemCode,
+                itemName: itemName,
+                unitPrice: unitPrice,
+                qtyOnHand: qtyOnHand,
+                total: total
+            });
         });
-        console.log(concatenatedValues)
+
         var data = {
             orderId: $("#orderId").val(),
             orderDate: $("#orderDate").val(),
             cusId: $("#customerId1").val(),
-            itemCode: concatenatedValues,
             total: $("#total").val(),
-            noOfItems: $("#numItems").val()
+            noOfItems: $("#numItems").val(),
+            items: items, // Use the items array directly
         };
-        console.log(data)
+
+        console.log(data);
+
         $.ajax({
             type: "POST",
-            url: BASE_URL+"placeOrder",
+            url: BASE_URL + "placeOrder",
             contentType: "application/json",
             data: JSON.stringify(data),
             success: function (response) {
                 console.log("Data sent successfully");
-                alert(response)
+                console.log(response);
+                alert(response.message);
             },
-            error: function (xhr, status, error) {
+            error: function (error) {
                 console.error("Error sending data:", error);
             }
         });
-    })
+    });
+
+
+    // $('#placeOrderBtn').click(function () {
+    //     var tbody = $("#addToCartTBody");
+    //     var concatenatedValues = "";
+    //     tbody.find("tr").each(function (index) {
+    //         var firstColumnValue = $(this).find("td:first").text();
+    //         if (index !== 0) {
+    //             concatenatedValues += ", "; // Add a comma and space separator
+    //         }
+    //         concatenatedValues += firstColumnValue;
+    //     });
+    //     console.log(concatenatedValues)
+    //     var data = {
+    //         orderId: $("#orderId").val(),
+    //         orderDate: $("#orderDate").val(),
+    //         cusId: $("#customerId1").val(),
+    //         itemCode: concatenatedValues,
+    //         total: $("#total").val(),
+    //         noOfItems: $("#numItems").val(),
+    //         rowCount:rowCount
+    //     };
+    //
+    //
+    //     console.log(data)
+    //     $.ajax({
+    //         type: "POST",
+    //         url: BASE_URL+"placeOrder",
+    //         contentType: "application/json",
+    //         data: JSON.stringify(data),
+    //         success: function (response) {
+    //             console.log("Data sent successfully");
+    //             alert(response)
+    //         },
+    //         error: function (xhr, status, error) {
+    //             console.error("Error sending data:", error);
+    //         }
+    //     });
+    // })
 </script>
 </body>
 </html>
